@@ -578,7 +578,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
     uint256 public lockedAmount;
     uint256 public exerciserFee = 50;//in tenth percent
     uint256 public expirerFee = 50;//in tenth percent
-    uint256 public devFundBetFee = 200;//0.5%
+    uint256 public devFundBetFee = 0;//0.5%
     uint256 public poolLockSeconds = 7 days;
     uint256 public contractCreated;
     bool public open = true;
