@@ -4,7 +4,7 @@ pragma solidity 0.6.6;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract TieredIBCO {
+contract ITCO {
     using SafeMath for uint256;
     address payable public tk; //address of the token being used in the ibco
     address payable owner;
