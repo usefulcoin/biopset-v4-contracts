@@ -159,8 +159,7 @@ contract DelegatedGov {
         address oldSha = rep[msg.sender];
         if (oldSha == 0x0000000000000000000000000000000000000000) {
             dBIOP = dBIOP.add(staked[msg.sender]);
-        }
-        if (oldSha != 0x0000000000000000000000000000000000000000) {
+        } else {
             shas[oldSha] = shas[oldSha].sub(staked[msg.sender]);
         }
         shas[newSha] = shas[newSha].add(staked[msg.sender]);
