@@ -30,8 +30,8 @@ contract ITCO {
 
 
     /**
-    * @notice start the ibco
-    * @param tk_ address of token to be ibco'd
+    * @notice start the itco
+    * @param tk_ address of token to be itco'd
     */
     constructor(address payable tk_) public {
         owner = msg.sender;
@@ -57,11 +57,11 @@ contract ITCO {
     }
 
     /**
-    * @notice withdraw the ETH emassed in the ibco
+    * @notice withdraw the ETH emassed in the ITCO
     */
     function collect() external onlyOwner {
-        require(end != 0, "IBCO not opened yet");
-        require(block.timestamp > end, "IBCO not ended yet");
+        require(end != 0, "ITCO not opened yet");
+        require(block.timestamp > end, "ITCO not ended yet");
         require(msg.sender.send(address(this).balance), "transfer failed");
 
         //collect leftover tokens from unreached tiers
@@ -74,8 +74,8 @@ contract ITCO {
 
 
     fallback () external payable {
-        require(sta > 0, "IBCO not opened yet");
-        require(block.timestamp < end, "IBCO has ended");
+        require(sta > 0, "ITCO not opened yet");
+        require(block.timestamp < end, "ITCO has ended");
         uint256 price;
         if (totalDeps >= t6) {
             price = p6;
