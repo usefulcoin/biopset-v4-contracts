@@ -16,4 +16,9 @@ contract BIOPTokenV4 is ERC20 {
       dev fund =            70000000000000000000000000000
       */
     }
+
+    function burn(uint256 amount) public {
+	require(balanceOf(msg.sender) >= amount, "insufficent balance");
+	_burn(msg.sender, amount);
+    }
 }
