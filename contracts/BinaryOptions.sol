@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import "./BIOPTokenV4.sol";
 import "./RateCalc.sol";
+import "./UtilizationRewards.sol";
 import "./interfaces/IEBOP20.sol";
 import "./interfaces/IBinaryOptions.sol";
 
@@ -554,6 +555,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
     using SafeMath for uint256;
     address payable public devFund;
     address payable public owner;
+    address public uR; //utilization rewards
     address public biop;
     address public defaultRCAddress;//address of default rate calculator
     mapping(address=>uint256) public nW; //next withdraw (used for pool lock time)
@@ -578,7 +580,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
     uint256 public lockedAmount;
     uint256 public exerciserFee = 50;//in tenth percent
     uint256 public expirerFee = 50;//in tenth percent
-    uint256 public devFundBetFee = 200;//0.5%
+    uint256 public devFundBetFee = 0;//200;//0.5%
     uint256 public poolLockSeconds = 7 days;
     uint256 public contractCreated;
     bool public open = true;
@@ -619,7 +621,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
     event Exercise(uint256 indexed id);
     event Expire(uint256 indexed id);
 
-      constructor(string memory name_, string memory symbol_, address pp_, address biop_, address rateCalc_) public ERC20(name_, symbol_){
+      constructor(string memory name_, string memory symbol_, address pp_, address biop_, address rateCalc_, address uR_) public ERC20(name_, symbol_){
         devFund = msg.sender;
         owner = msg.sender;
         biop = biop_;
@@ -630,6 +632,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         defaultPair = pp_;
         minT = 900;//15 minutes
         maxT = 60 minutes;
+        uR = uR_;
     }
 
 
@@ -759,11 +762,12 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         
         BIOPTokenV4 b = BIOPTokenV4(biop);
         uint256 claims = getPendingClaims(msg.sender);
-        if (balanceOf(msg.sender) > 1) {
+        if (balanceOf(msg.sender) >= 1) {
             updateLPmetrics();
         }
         pClaims[msg.sender] = 0;
-        b.updateEarlyClaim(claims);
+        UtilizationRewards r = UtilizationRewards(uR);
+        r.updateEarlyClaim(claims);
     }
 
     
@@ -975,15 +979,15 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         uint256 s;
         if (k){
             if (oP >= oC) {
-             s = 1;
+              s = 1;
             } else {
-            s = oC.sub(oP);
+              s = oC.sub(oP);
             }
         } else {
-             if (oC >= oP) {
-             s = 1;
+            if (oC >= oP) {
+              s = 1;
             } else {
-            s = oP.sub(oC);
+              s = oP.sub(oC);
             }
         }
         
