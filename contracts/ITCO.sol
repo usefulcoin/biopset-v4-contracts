@@ -44,6 +44,14 @@ contract ITCO {
     }
 
     /**
+    * @notice transfer the ownership
+    * @param newOwner_ the new address (the multisig)
+     */
+    function transferOwner(address payable newOwner_) public onlyOwner {
+        owner = newOwner_;
+    }
+
+    /**
     * @notice start the ibco
     * @dev owner must approve IBCO contract before start will succeed
     * @param a the amount of token to include in ibco

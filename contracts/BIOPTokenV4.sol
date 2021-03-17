@@ -17,8 +17,12 @@ contract BIOPTokenV4 is ERC20 {
       */
     }
 
+    /**
+    * @dev enables DAO to burn tokens 
+    * @param amount the amount of tokens to burn
+    */
     function burn(uint256 amount) public {
-	require(balanceOf(msg.sender) >= amount, "insufficent balance");
-	_burn(msg.sender, amount);
+      require(balanceOf(msg.sender) >= amount, "insufficent balance");
+      _burn(msg.sender, amount);
     }
 }
