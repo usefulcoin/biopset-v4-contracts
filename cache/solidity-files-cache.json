@@ -1,0 +1,929 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/Users/knott/Desktop/contracts/contracts/AdaptiveRateCalc.sol": {
+      "lastModificationDate": 1615876825000,
+      "contentHash": "6323921e5f07fedcdca2c9b3ccf511bf",
+      "sourceName": "contracts/AdaptiveRateCalc.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "./RateCalc.sol",
+        "./BinaryOptions.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "AdaptiveRateCalc"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/node_modules/@openzeppelin/contracts/math/SafeMath.sol": {
+      "lastModificationDate": 1615876973000,
+      "contentHash": "e03e12206057e809eb76c5f681170c32",
+      "sourceName": "@openzeppelin/contracts/math/SafeMath.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "SafeMath"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/RateCalc.sol": {
+      "lastModificationDate": 1615876826000,
+      "contentHash": "131a8b4ae4cb3e35157ba2dec7351d7a",
+      "sourceName": "contracts/RateCalc.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IRCD",
+        "RateCalc"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/BinaryOptions.sol": {
+      "lastModificationDate": 1615876826000,
+      "contentHash": "8699bee4df6190ad2536dda3946ea4d8",
+      "sourceName": "contracts/BinaryOptions.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "./BIOPTokenV4.sol",
+        "./RateCalc.sol",
+        "./UtilizationRewards.sol",
+        "./interfaces/IEBOP20.sol",
+        "./interfaces/IBinaryOptions.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "AggregatorInterface",
+        "AggregatorProxy",
+        "AggregatorV2V3Interface",
+        "AggregatorV3Interface",
+        "BinaryOptions",
+        "Owned"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
+      "lastModificationDate": 1615876972000,
+      "contentHash": "8065b340476f61365c076897199425f1",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../utils/Context.sol",
+        "./IERC20.sol",
+        "../../math/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ERC20"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/BIOPTokenV4.sol": {
+      "lastModificationDate": 1616256433000,
+      "contentHash": "72ed1f5ae3e558581b22215a2d751d6a",
+      "sourceName": "contracts/BIOPTokenV4.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "./BIOPToken.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "BIOPTokenV4"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/UtilizationRewards.sol": {
+      "lastModificationDate": 1615876825000,
+      "contentHash": "08ab44c12395c9912a1d77302cb96e0c",
+      "sourceName": "contracts/UtilizationRewards.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "UtilizationRewards"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/interfaces/IEBOP20.sol": {
+      "lastModificationDate": 1615876829000,
+      "contentHash": "25187993b52212ac29adc950fa65733d",
+      "sourceName": "contracts/interfaces/IEBOP20.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IEBOP20"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/interfaces/IBinaryOptions.sol": {
+      "lastModificationDate": 1615876829000,
+      "contentHash": "9b7063534f1cb94f5fa11a54e723e1c8",
+      "sourceName": "contracts/interfaces/IBinaryOptions.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IBinaryOptions"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/node_modules/@openzeppelin/contracts/utils/Context.sol": {
+      "lastModificationDate": 1615876972000,
+      "contentHash": "2adbd82f6d055a4751566d4671512b03",
+      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+      "lastModificationDate": 1615876973000,
+      "contentHash": "e0a41531d159d3a32f84b7a3ecf9fabb",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/BIOPToken.sol": {
+      "lastModificationDate": 1615876826000,
+      "contentHash": "cc6c94adfedcdff6a89a26557e72baa0",
+      "sourceName": "contracts/BIOPToken.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "BIOPToken"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/DelegatedGov.sol": {
+      "lastModificationDate": 1615876827000,
+      "contentHash": "c4b4b61f90789cd8c18a2b80fa96a6d4",
+      "sourceName": "contracts/DelegatedGov.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "./interfaces/IBinaryOptions.sol",
+        "./GovProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "AccessTiers",
+        "DelegatedAccessTiers",
+        "DelegatedGov"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/GovProxy.sol": {
+      "lastModificationDate": 1615876825000,
+      "contentHash": "cd528653beb7f339e4eba2c4f869fe30",
+      "sourceName": "contracts/GovProxy.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "GovProxy"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/V2V3Claim.sol": {
+      "lastModificationDate": 1615879168000,
+      "contentHash": "39c3022312d5b2eca269c395ec90f6a6",
+      "sourceName": "contracts/V2V3Claim.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "./BIOPToken.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "V2V3Claim"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/depreciated/V2V3Swap.sol": {
+      "lastModificationDate": 1615876827000,
+      "contentHash": "7150666782430160826fb5ea175250b2",
+      "sourceName": "contracts/depreciated/V2V3Swap.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "../BIOPToken.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "V2V3Swap"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/placeholders/FakeERC20.sol": {
+      "lastModificationDate": 1615876826000,
+      "contentHash": "17a358a8f96728e3452c7d29e13d661e",
+      "sourceName": "contracts/placeholders/FakeERC20.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "FakeERC20"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/LateStageBondingCurve.sol": {
+      "lastModificationDate": 1615876827000,
+      "contentHash": "b1118e821b3b93394597d06ad0d83d44",
+      "sourceName": "contracts/LateStageBondingCurve.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "./ContinuousToken/curves/BancorBondingCurve.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "LateStageBondingCurve"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/ContinuousToken/curves/BancorBondingCurve.sol": {
+      "lastModificationDate": 1615876828000,
+      "contentHash": "fb456379667ffa12d339d422bca5c2cf",
+      "sourceName": "contracts/ContinuousToken/curves/BancorBondingCurve.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../math/BancorFormula.sol",
+        "../interfaces/IBondingCurve.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "BancorBondingCurve"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/ContinuousToken/math/BancorFormula.sol": {
+      "lastModificationDate": 1615876828000,
+      "contentHash": "8706dd066e2c0ba5b6ee06c531c68322",
+      "sourceName": "contracts/ContinuousToken/math/BancorFormula.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "./Power.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "BancorFormula"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/ContinuousToken/interfaces/IBondingCurve.sol": {
+      "lastModificationDate": 1615876828000,
+      "contentHash": "2ef36c6fe47b92c118ce84de9318a06e",
+      "sourceName": "contracts/ContinuousToken/interfaces/IBondingCurve.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IBondingCurve"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/ContinuousToken/math/Power.sol": {
+      "lastModificationDate": 1615876828000,
+      "contentHash": "c224280b7896d8b8b794dc184b352499",
+      "sourceName": "contracts/ContinuousToken/math/Power.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "Power"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/depreciated/BondingCurve.sol": {
+      "lastModificationDate": 1616256204000,
+      "contentHash": "e893b56bbcbcaade8b5a2e27051b1d58",
+      "sourceName": "contracts/depreciated/BondingCurve.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "../ContinuousToken/curves/BancorBondingCurve.sol"
+      ],
+      "versionPragmas": [
+        "0.6.6"
+      ],
+      "artifacts": [
+        "BondingCurve"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/ITCO.sol": {
+      "lastModificationDate": 1616007692000,
+      "contentHash": "d762309e66657cbfd986669523053a57",
+      "sourceName": "contracts/ITCO.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      ],
+      "versionPragmas": [
+        "0.6.6"
+      ],
+      "artifacts": [
+        "ITCO"
+      ]
+    },
+    "/Users/knott/Desktop/contracts/contracts/placeholders/FakePriceProvider.sol": {
+      "lastModificationDate": 1615876826000,
+      "contentHash": "f73778a0b409164a4a48b77bb2d9b35c",
+      "sourceName": "contracts/placeholders/FakePriceProvider.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "AggregatorV3Interface",
+        "FakePriceProvider"
+      ]
+    }
+  }
+}

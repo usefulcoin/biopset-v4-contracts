@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 
-import "./ContinuousToken/curves/BancorBondingCurve.sol";
+import "../ContinuousToken/curves/BancorBondingCurve.sol";
 
 contract BondingCurve  is BancorBondingCurve {
     using SafeMath for uint256;

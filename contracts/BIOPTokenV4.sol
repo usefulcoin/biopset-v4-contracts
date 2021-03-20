@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./BIOPToken.sol";
 contract BIOPTokenV4 is ERC20 {
     bool public whitelistEnabled = false;
-    mapping(address payable=>bool) whitelist;
+    mapping(address=>bool) public whitelist;
     address public owner;
 
     constructor(string memory name_, string memory symbol_) public ERC20(name_, symbol_) {
@@ -43,23 +43,40 @@ contract BIOPTokenV4 is ERC20 {
       _;
     }
 
+     /**
+    * @dev transfer ownership
+    * @param newOwner_ the new address to assume ownership responsiblity (the multisig)
+    */
     function transferOwner(address payable newOwner_) public onlyOwner {
       owner = newOwner_;
     }
 
-
-    function addToWhitelist(address payable) public onlyOwner {
-      whitelist[address] = true;
+   /**
+    * @dev enable a address to access the approve function while the whitelist is active
+    * @param user the address to approve
+    */
+    function addToWhitelist(address payable user) public onlyOwner {
+      whitelist[user] = true;
     }
 
-    function removeFromWhitelist(address payable) public onlyOwner {
-      whitelist[address] = false;
+   /**
+    * @dev disable a address to access the approve function while the whitelist is active
+    * @param user the address to revoke access from
+    */
+    function removeFromWhitelist(address payable user) public onlyOwner {
+      whitelist[user] = false;
     }
 
+    /**
+    * @dev end the whitelist. This is a one time call, the whitelist cannot be renabled
+    */
     function disableWhitelist() public onlyOwner {
       whitelistEnabled = false;
     }
 
+    /**
+    * @dev works like normal erc20 approve except when whitelist is enabled then sender must be whitelisted or revert.
+    */
     function approve(address spender, uint256 amount) public override returns (bool) {      
       if (whitelistEnabled) {
         require(whitelist[_msgSender()] == true, "unapproved sender");
