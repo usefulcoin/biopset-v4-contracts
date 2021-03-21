@@ -8,14 +8,10 @@ pragma solidity ^0.6.6;
 
 interface IBinaryOptions {
 
-    function addAltPool(address newPool_) external;
-    function removeAltPool(address oldPool_) external;
     function setMaxT(uint256 newMax_) external;
     function setMinT(uint256 newMin_) external;
     function updateExerciserFee(uint256 exerciserFee_) external;
     function updateExpirerFee(uint256 expirerFee_) external;
-    function addPP(address newPP_, address rateCalc_) external;
-    function removePP(address oldPP_) external;
     function enableRewards(bool nx_) external ;
     function updatePoolLockSeconds(uint256 newLockSeconds_) external;
     function updateDevFundBetFee(uint256 devFundBetFee_) external;

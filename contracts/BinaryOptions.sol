@@ -7,9 +7,9 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import "./BIOPTokenV4.sol";
 import "./RateCalc.sol";
-import "./UtilizationRewards.sol";
-import "./interfaces/IEBOP20.sol";
+import "./interfaces/IUtilizationRewards.sol";
 import "./interfaces/IBinaryOptions.sol";
+import "./interfaces/IAPP.sol";
 
 
 interface AggregatorInterface {
@@ -557,17 +557,13 @@ contract BinaryOptions is ERC20, IBinaryOptions {
     address payable public owner;
     address public uR; //utilization rewards
     address public biop;
-    address public defaultRCAddress;//address of default rate calculator
+    address public app;//the approved pp/ratecalc
     mapping(address=>uint256) public nW; //next withdraw (used for pool lock time)
-    mapping(address=>address) public ePairs;//enabled pairs. price provider mapped to rate calc
     mapping(address=>uint256) public lW;//last withdraw.used for rewards calc
     mapping(address=>uint256) private pClaims;//pending claims
     mapping(address=>uint256) public iAL;//interchange at last claim 
     mapping(address=>uint256) public lST;//last stake time
 
-    //erc20 pools stuff
-    mapping(address=>bool) public ePools;//enabled pools
-    mapping(address=>uint256) public altLockedAmount;
 
     uint256 public oC = 0;
     uint256 public oP = 0;
@@ -576,7 +572,6 @@ contract BinaryOptions is ERC20, IBinaryOptions {
 
     uint256 public minT;//min time
     uint256 public maxT;//max time
-    address public defaultPair;
     uint256 public lockedAmount;
     uint256 public exerciserFee = 50;//in tenth percent
     uint256 public expirerFee = 50;//in tenth percent
@@ -601,6 +596,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
     struct Option {
         address payable holder;
         int256 sP;//strike
+        uint80 pR;//purchase round
         uint256 pV;//purchase value
         uint256 lV;// purchaseAmount+possible reward for correct bet
         uint256 exp;//expiration
@@ -621,18 +617,16 @@ contract BinaryOptions is ERC20, IBinaryOptions {
     event Exercise(uint256 indexed id);
     event Expire(uint256 indexed id);
 
-      constructor(string memory name_, string memory symbol_, address pp_, address biop_, address rateCalc_, address uR_) public ERC20(name_, symbol_){
+      constructor(string memory name_, string memory symbol_, address biop_, address uR_, address app_) public ERC20(name_, symbol_){
         devFund = msg.sender;
         owner = msg.sender;
         biop = biop_;
-        defaultRCAddress = rateCalc_;
         lockedAmount = 0;
         contractCreated = block.timestamp;
-        ePairs[pp_] = defaultRCAddress; //default pair ETH/USD
-        defaultPair = pp_;
         minT = 900;//15 minutes
         maxT = 60 minutes;
         uR = uR_;
+        app = app_;
     }
 
 
@@ -645,105 +639,27 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         }
     }
 
-    function getAltMaxAvailable(address erc20PoolAddress_) public view returns(uint256) {
-        ERC20 alt = ERC20(erc20PoolAddress_);
-        uint256 balance = alt.balanceOf(address(this));
-        if (balance >  altLockedAmount[erc20PoolAddress_]) {
-            return balance.sub( altLockedAmount[erc20PoolAddress_]);
-        } else {
-            return 0;
-        }
-    }
 
     function getOptionCount() public view returns(uint256) {
         return options.length;
     }
-
-    function getStakingTimeBonus(address account) public view returns(uint256) {
-        uint256 dif = block.timestamp.sub(lST[account]);
-        uint256 bonus = dif.div(777600);//9 days
-        if (dif < 777600) {
-            return 1;
-        }
-        return bonus;
-    }
-
-    function getPoolBalanceBonus(address account) public view returns(uint256) {
-        uint256 balance = balanceOf(account);
-        if (balance > 0) {
-
-            if (totalSupply() < 100) { //guard
-                return 1;
-            }
-            
-
-            if (balance >= totalSupply().div(2)) {//50th percentile
-                return 20;
-            }
-
-            if (balance >= totalSupply().div(4)) {//25th percentile
-                return 14;
-            }
-
-            if (balance >= totalSupply().div(5)) {//20th percentile
-                return 10;
-            }
-
-            if (balance >= totalSupply().div(10)) {//10th percentile
-                return 8;
-            }
-
-            if (balance >= totalSupply().div(20)) {//5th percentile
-                return 6;
-            }
-
-            if (balance >= totalSupply().div(50)) {//2nd percentile
-                return 4;
-            }
-
-            if (balance >= totalSupply().div(100)) {//1st percentile
-                return 3;
-            }
-           
-           return 2;
-        } 
-        return 0; 
-    }
-
-    /**  
-    * @notice bonus based  on total interchange. The more bet's are used, the more rewards.
-     */
-    function getOptionValueBonus(address account) public view returns(uint256) {
-        uint256 dif = tI.sub(iAL[account]);
-        uint256 bonus = dif.div(100000000000000000);//.1ETH
-        if(bonus > 0){
-            return bonus;
-        }
-        return 1;
-    }
+  
 
     //used for betting/exercise/expire calc
-    function getBetSizeBonus(uint256 amount, uint256 base) public view returns(uint256) {
-        uint256 betPercent = totalSupply().mul(100).div(amount);
-        if(base.mul(betPercent).div(10) > 0){
-            return base.mul(betPercent).div(10);
-        }
-        return base.div(1000);
+    function getBetSizeBonus(uint256 amount, bool completion) public view returns(uint256) {
+        IUtilizationRewards r = IUtilizationRewards(uR);
+        return r.getBetExerciseBonus(amount, address(this).balance, completion);
     }
 
-    function getCombinedStakingBonus(address account) public view returns(uint256) {
-        return rwd.mul(10)
-                .mul(getStakingTimeBonus(account))
-                .mul(getPoolBalanceBonus(account))
-                .mul(getOptionValueBonus(account));
-    }
 
     function getPendingClaims(address account) public view returns(uint256) {
+
+        IUtilizationRewards r = IUtilizationRewards(uR);
         if (balanceOf(account) > 1) {
             //staker reward bonus
             //base*(weeks)*(poolBalanceBonus/10)*optionsBacked
             return pClaims[account].add(
-                getCombinedStakingBonus(account)
+                r.getLPStakingBonus(lST[account],iAL[account], tI, balanceOf(account), totalSupply())
             );
         } else {
             //normal rewards
@@ -761,24 +677,15 @@ contract BinaryOptions is ERC20, IBinaryOptions {
     function claimRewards() external {
         
         BIOPTokenV4 b = BIOPTokenV4(biop);
+        
         uint256 claims = getPendingClaims(msg.sender);
         if (balanceOf(msg.sender) >= 1) {
             updateLPmetrics();
         }
         pClaims[msg.sender] = 0;
-        UtilizationRewards r = UtilizationRewards(uR);
-        r.updateEarlyClaim(claims);
-    }
 
-    
-
-  
-
-    /**
-     * @dev the default price provider. This is a convenience method
-     */
-    function defaultPriceProvider() public view returns (address) {
-        return defaultPair;
+        IUtilizationRewards r = IUtilizationRewards(uR);
+        r.distributeClaim(claims);
     }
 
     /**
@@ -804,13 +711,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         rwd = a; 
     }
 
-    /**
-     * @dev add a pool
-     * @param newPool_ the address EBOP20 pool to add
-     */
-    function addAltPool(address newPool_) external override onlyOwner {
-        ePools[newPool_] = true; 
-    }
+    
 
     /**
      * @dev enable or disable BIOP utilization rewards
@@ -818,33 +719,6 @@ contract BinaryOptions is ERC20, IBinaryOptions {
      */
     function enableRewards(bool nx_) external override onlyOwner {
         rewEn = nx_;
-    }
-
-    /**
-     * @dev remove a pool
-     * @param oldPool_ the address EBOP20 pool to remove
-     */
-    function removeAltPool(address oldPool_) external override onlyOwner {
-        ePools[oldPool_] = false; 
-    }
-
-    /**
-     * @dev add or update a price provider to the ePairs list.
-     * @param newPP_ the address of the AggregatorProxy price provider contract address to add.
-     * @param rateCalc_ the address of the RateCalc to use with this trading pair.
-     */
-    function addPP(address newPP_, address rateCalc_) external override onlyOwner {
-        ePairs[newPP_] = rateCalc_; 
-    }
-
-   
-
-    /**
-     * @dev remove a price provider from the ePairs list
-     * @param oldPP_ the address of the AggregatorProxy price provider contract address to remove.
-     */
-    function removePP(address oldPP_) external override onlyOwner {
-        ePairs[oldPP_] = 0x0000000000000000000000000000000000000000;
     }
 
     /**
@@ -975,7 +849,10 @@ contract BinaryOptions is ERC20, IBinaryOptions {
     @return the rate
     */
     function getRate(address pair, uint256 deposit, uint256 t, bool k) public view returns (uint256) {
-        RateCalc rc = RateCalc(ePairs[pair]);
+        IAPP app_ = IAPP(app);
+        require(app_.aprvd(pair) != 0x0000000000000000000000000000000000000000, "invalid trading pair");
+        
+        RateCalc rc = RateCalc(app_.aprvd(pair));
         uint256 s;
         if (k){
             if (oP >= oC) {
@@ -997,18 +874,19 @@ contract BinaryOptions is ERC20, IBinaryOptions {
      /**
     @dev Open a new call or put options.
     @param k_ type of option to buy (true for call )
-    @param pp_ the address of the price provider to use (must be in the list of ePairs)
-    @param t_ the time until your options expiration (must be minT < t_ > maxT)
+    @param pp_ the address of the price provider to use (must be in the list of aprvd from IAPP)
+    @param t_ the rounds until your options expiration (must be minT < t_ > maxT)
     */
     function bet(bool k_, address pp_, uint256 t_) external payable {
         require(
             t_ >= minT && t_ <= maxT,
             "Invalid time"
         );
-        require(ePairs[pp_] != 0x0000000000000000000000000000000000000000, "Invalid  price provider");
+        IAPP app_ = IAPP(app);
+        require(app_.aprvd(pp_) != 0x0000000000000000000000000000000000000000, "Invalid  price provider");
         
         AggregatorProxy priceProvider = AggregatorProxy(pp_);
-        int256 lA = priceProvider.latestAnswer();
+        (uint80 lR, int256 lA, , , ) = priceProvider.latestRoundData();
         uint256 oID = options.length;
 
         
@@ -1022,7 +900,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
             uint256 lV = getRate(pp_, msg.value, t_, k_);
             
             if (rewEn) {
-                pClaims[msg.sender] = pClaims[msg.sender].add(getBetSizeBonus(msg.value, rwd));
+                pClaims[msg.sender] = pClaims[msg.sender].add(getBetSizeBonus(msg.value, false));
             }
             lock(lV);
         
@@ -1031,9 +909,10 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         Option memory op = Option(
             msg.sender,
             lA,
+            lR,
             msg.value,
             lV,
-            block.timestamp + t_,//time till expiration
+            t_,//rounds until expiration
             k_,
             pp_,
             address(this)
@@ -1049,45 +928,8 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         emit Create(oID, msg.sender, lA, lV, k_);
     }
 
-    /**
-    @dev Open a new call or put options with a ERC20 pool.
-    @param k_ type of option to buy (true for call)
-    @param pp_ the address of the price provider to use (must be in the list of ePairs)
-    @param t_ the time until your options expiration (must be minT < t_ > maxT)
-    @param pa_ address of alt pool
-    @param a_ bet amount. 
-    */function bet20(bool k_, address pp_, uint256 t_, address pa_,  uint256 a_) external payable {
-        require(
-            t_ >= minT && t_ <= maxT,
-            "Invalid time"
-        );
-        require(ePairs[pp_] != 0x0000000000000000000000000000000000000000, "Invalid  price provider");
-        
-        AggregatorProxy priceProvider = AggregatorProxy(pp_);
-        int256 lA = priceProvider.latestAnswer();
-        uint256 dV;
-        uint256 lT;
+  
 
-        require(ePools[pa_], "invalid pool");
-        IEBOP20 altPool = IEBOP20(pa_);
-        require(altPool.balanceOf(msg.sender) >= a_, "invalid pool");
-        (dV, lT) = altPool.bet(lA, a_);
-        
-        Option memory op = Option(
-            msg.sender,
-            lA,
-            dV,
-            lT,
-            block.timestamp + t_,//time till expiration
-            k_,
-            pp_,
-            pa_
-        );
-
-        options.push(op);
-        tI = tI.add(lT);
-        emit Create(options.length-1, msg.sender, lA, lT, k_);
-    }
 
 
     
@@ -1115,29 +957,25 @@ contract BinaryOptions is ERC20, IBinaryOptions {
 
 
 
-        if (option.aPA != address(this)) {
-            IEBOP20 alt = IEBOP20(option.aPA);
-            require(alt.payout(option.lV,option.pV, msg.sender, option.holder), "erc20 pool exercise failed");
-        } else {
-            //option expires ITM, we pay out
+        //option expires ITM, we pay out
 
-            uint256 lv = option.lV;
+        uint256 lv = option.lV;
 
-            //an optional (to be choosen by contract owner) fee on each option. 
-            //A % of the bet money is sent as a fee. see devFundBetFee
-            if (lv > devFundBetFee && devFundBetFee > 0) {
-                    uint256 fee = lv.div(devFundBetFee);
-                    require(devFund.send(fee), "devFund fee transfer failed");
-                    lv = lv.sub(fee);
-            }
-
-            payout(lv, msg.sender, option.holder);
-            lockedAmount = lockedAmount.sub(option.lV);
+        //an optional (to be choosen by contract owner) fee on each option. 
+        //A % of the bet money is sent as a fee. see devFundBetFee
+        if (lv > devFundBetFee && devFundBetFee > 0) {
+                uint256 fee = lv.div(devFundBetFee);
+                require(devFund.send(fee), "devFund fee transfer failed");
+                lv = lv.sub(fee);
         }
+
+        payout(lv, msg.sender, option.holder);
+        lockedAmount = lockedAmount.sub(option.lV);
+        
         
         emit Exercise(oID);
         if (rewEn) {
-            pClaims[msg.sender] = pClaims[msg.sender].add(getBetSizeBonus(option.lV, rwd));
+            pClaims[msg.sender] = pClaims[msg.sender].add(getBetSizeBonus(option.lV, true));
         }
     }
 
@@ -1152,15 +990,10 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         require(block.timestamp > option.exp, "expiration date has not passed");
 
 
-        if (option.aPA != address(this)) {
-            //ERC20 option
-            IEBOP20 alt = IEBOP20(option.aPA);
-            require(alt.unlockAndPayExpirer(option.lV,option.pV, msg.sender), "erc20 pool exercise failed");
-        } else {
-            //ETH option
-            unlock(option.lV, msg.sender);
-            lockedAmount = lockedAmount.sub(option.lV);
-        }
+        
+        //ETH option
+        unlock(option.lV, msg.sender);
+        lockedAmount = lockedAmount.sub(option.lV);
         emit Expire(oID);
 
         if (option.dir) {
@@ -1170,7 +1003,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         }
 
         if (rewEn) {
-            pClaims[msg.sender] = pClaims[msg.sender].add(getBetSizeBonus(option.pV, rwd));
+            pClaims[msg.sender] = pClaims[msg.sender].add(getBetSizeBonus(option.pV, true));
         }
     }
 

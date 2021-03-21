@@ -21,7 +21,7 @@ contract V2V3Claim{
       token = ERC20(token_);
       token.transferFrom(msg.sender, address(this), total);
 
-      //TODO hardcode all claimants here
+      //hardcode all claimants here
       claimants[0x59cE5702F124ae45D63ae1c531E41b8c456a072d] = 10000000;
     }
 

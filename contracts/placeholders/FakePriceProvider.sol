@@ -59,7 +59,7 @@ contract FakePriceProvider is AggregatorV3Interface {
         override
         view
         returns (
-            uint80,
+            uint80 round,
             int256 answer,
             uint256,
             uint256,
@@ -67,6 +67,7 @@ contract FakePriceProvider is AggregatorV3Interface {
         )
     {
         answer = int(price);
+        round = uint80(5);
     }
 }
 

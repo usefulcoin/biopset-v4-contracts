@@ -3,7 +3,9 @@ pragma solidity ^0.6.6;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract UtilizationRewards {
+import "./interfaces/IUtilizationRewards.sol";
+
+contract UtilizationRewards is IUtilizationRewards{
     using SafeMath for uint256;
     address public bO = 0x0000000000000000000000000000000000000000;//binary options
     address payable dao = 0x0000000000000000000000000000000000000000;
@@ -14,6 +16,9 @@ contract UtilizationRewards {
     uint256 public tTE;//claims left this epoch
     uint256 maxEpoch;
     ERC20 token;
+
+    //base rewards 
+    uint256 public rwd = 20000000000000000;
                                       
 
     /** 
@@ -52,7 +57,7 @@ contract UtilizationRewards {
      * @dev transfer ownership of this contract
      * @param g_ the new governance address
      */
-    function transferGovernance(address payable g_) external onlyDAO {
+    function transferGovernance(address payable g_) external override onlyDAO {
         require(g_ != 0x0000000000000000000000000000000000000000);
         dao = g_;
     }
@@ -65,7 +70,7 @@ contract UtilizationRewards {
      * @dev called by the binary options contract to claim Reward for user
      * @param amount the amount in BIOP to add to transfer to this user
      **/
-    function updateEarlyClaim(uint256 amount) external onlyBinaryOptions {
+    function distributeClaim(uint256 amount ) external override onlyBinaryOptions {
         if (lEnd < block.timestamp) {
             require(token.balanceOf(address(this)) >= amount.mul(8), "insufficent balance remaining");
             updateEpoch(amount.mul(8));
@@ -76,6 +81,125 @@ contract UtilizationRewards {
             token.transfer(tx.origin, amount);
         }
     }
+
+ 
+
+    /**
+     * @dev calculate the staking time bonus (1x every 9 days)
+     * @param lastStake timestamp of LPs last stake/claim
+     **/
+    function getStakingTimeBonus(uint256 lastStake) public view returns(uint256) {
+        uint256 dif = block.timestamp.sub(lastStake);
+        uint256 bonus = dif.div(777600);//9 days
+        if (dif < 777600) {
+            return 1;
+        }
+        return bonus;
+    }
+
+    /**
+     * @dev calculate the bonus for % of total LP pool
+     * @param locked amount the user has staked
+     * @param totalLocked the total amount staked by all LPs
+     **/
+    function getPoolBalanceBonus(uint256 locked, uint256 totalLocked) public view returns(uint256) {
+       
+        if (locked > 0) {
+
+            if (totalLocked < 100) { //guard
+                return 1;
+            }
+            
+
+            if (locked >= totalLocked.div(2)) {//50th percentile
+                return 20;
+            }
+
+            if (locked >= totalLocked.div(4)) {//25th percentile
+                return 14;
+            }
+
+            if (locked >= totalLocked.div(5)) {//20th percentile
+                return 10;
+            }
+
+            if (locked >= totalLocked.div(10)) {//10th percentile
+                return 8;
+            }
+
+            if (locked >= totalLocked.div(20)) {//5th percentile
+                return 6;
+            }
+
+            if (locked >= totalLocked.div(50)) {//2nd percentile
+                return 4;
+            }
+
+            if (locked >= totalLocked.div(100)) {//1st percentile
+                return 3;
+            }
+           
+           return 2;
+        } 
+        return 0; 
+    }
+
+     /**  
+    * @notice bonus based  on total interchange. The more bet's are used, the more rewards.
+    * @param lastInterchange the total interchange the last time the LP staked/claimed
+    * @param totalInterchange the total interchange now
+    */
+    function getOptionValueBonus(uint256 lastInterchange, uint256 totalInterchange) public view returns(uint256) {
+        uint256 dif = totalInterchange.sub(lastInterchange);
+        uint256 bonus = dif.div(100000000000000000);//.1ETH
+        if(bonus > 0){
+            return bonus;
+        }
+        return 1;
+    }
+
+     /**
+     * @dev called by the binary options contract to claim Reward for user
+     * @param lastStake timestamp of LPs last stake/claim
+     * @param lastInterchange the total interchange the last time the LP staked/claimed
+     * @param totalInterchange amount interchanged since LPs last claim
+     * @param stakedAmount amount the user has staked
+     * @param totalStaked the total amount staked by all LPs
+     **/
+    function getLPStakingBonus(uint256 lastStake, uint256 lastInterchange, uint256 totalInterchange, uint256 stakedAmount, uint256 totalStaked) external override view returns(uint256) {
+        return rwd.mul(10)
+                .mul(getStakingTimeBonus(lastStake))
+                .mul(getPoolBalanceBonus(stakedAmount, totalStaked))
+                .mul(getOptionValueBonus(lastInterchange, totalInterchange));
+    }
+
+
+
+     /**
+     * @dev used for betting/exercise/expire calc
+     * @param amount the amount of value in bet
+     * @param totalLocked total LP pool size
+     * @param completion false for bet, true for exercise expire
+     **/
+    function getBetExerciseBonus(uint256 amount, uint256 totalLocked, bool completion) external view override returns(uint256) {
+        return rwd.div(1000);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // UTILS
 
     //epochs run 30 days. except the final epoch that goes on until rewards run out.
     // unused rewards are rolled over into the next epoch.

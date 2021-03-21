@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 //import "./BIOPTokenV4.sol";
 
 import "./interfaces/IBinaryOptions.sol";
+import "./interfaces/IAPP.sol";
 import "./GovProxy.sol";
 interface AccessTiers {
     /**
@@ -253,16 +254,6 @@ contract DelegatedGov {
     fallback () external payable {}
 
 
-     /**
-     * @notice add a alt pool
-     * @param newPool_ the address of the EBOP20 pool to add
-     */
-    function addAltPool(address newPool_) external  {
-        require(staked[msg.sender] > 100, "invalid user");
-        IBinaryOptions pr = IBinaryOptions(pA);
-        pr.addAltPool(newPool_);
-    }
-
     /* 
                                                                                               
                                                                                           
@@ -387,8 +378,8 @@ contract DelegatedGov {
      * @param oldPP_ the address of trading pair to be removed
      */
     function removeTradingPair(address oldPP_) external tierTwoDelegation {
-        IBinaryOptions pr = IBinaryOptions(pA);
-        pr.removePP(oldPP_);
+        IAPP app = IAPP(pA);
+        app.removePP(oldPP_);
     }
 
     /**
@@ -397,8 +388,8 @@ contract DelegatedGov {
      * @param newRateCalc_ the address of the rate calc to be used for this pair
      */
     function addUpdateTradingPair(address newPP_, address newRateCalc_) external tierTwoDelegation {
-        IBinaryOptions pr = IBinaryOptions(pA);
-        pr.addPP(newPP_, newRateCalc_);
+        IAPP app = IAPP(pA);
+        app.addPP(newPP_, newRateCalc_);
     }
 
    
@@ -464,14 +455,7 @@ contract DelegatedGov {
 
      */
 
-    /**
-     * @notice remove a pool
-     * @param oldPool_ the address of the pool to remove
-     */
-    function removeAltPool(address oldPool_) external tierThreeDelegation {
-        IBinaryOptions pr = IBinaryOptions(pA);
-        pr.removeAltPool(oldPool_);
-    }
+    
 
     /**
      * @notice update soft lock time for the main pool. 

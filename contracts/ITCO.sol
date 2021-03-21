@@ -13,20 +13,20 @@ contract ITCO {
     uint256 public end = 0;
 
     //Tiers
-    uint256 t1 =  50000000000000000000;
-    uint256 t2 =  70000000000000000000;
-    uint256 t3 =  90000000000000000000;
-    uint256 t4 = 110000000000000000000;
-    uint256 t5 = 130000000000000000000;
-    uint256 t6 = 150000000000000000000;
+    uint256 t1 =   1000000000000000000;
+    uint256 t2 =  30000000000000000000;
+    uint256 t3 =  66600000000000000000;
+    uint256 t4 = 100000000000000000000;
+    uint256 t5 = 150000000000000000000;
+    uint256 t6 = 200000000000000000000;
 
     //token price at each tier
-    uint256 p1 =  50000000000000;//~$0.09
-    uint256 p2 =  70000000000000;//~$0.13
-    uint256 p3 =  90000000000000;//~$0.16
-    uint256 p4 = 110000000000000;//~$0.20
-    uint256 p5 = 130000000000000;//~$0.23
-    uint256 p6 = 150000000000000;//~$0.27
+    uint256 p1 = 60320000000000;//~$0.10
+    uint256 p2 = 50320000000000;//~$0.08
+    uint256 p3 = 35000000000000;//~$0.06
+    uint256 p4 = 25000000000000;//~$0.04
+    uint256 p5 = 20000000000000;//~$0.03
+    uint256 p6 = 10000000000000;//~$0.02
 
 
     /**
@@ -41,14 +41,6 @@ contract ITCO {
     modifier onlyOwner() {
         require(owner == msg.sender, "Ownable: caller is not the owner");
         _;
-    }
-
-    /**
-    * @notice transfer the ownership
-    * @param newOwner_ the new address (the multisig)
-     */
-    function transferOwner(address payable newOwner_) public onlyOwner {
-        owner = newOwner_;
     }
 
     /**
