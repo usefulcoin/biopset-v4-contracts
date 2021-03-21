@@ -599,7 +599,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         uint80 pR;//purchase round
         uint256 pV;//purchase value
         uint256 lV;// purchaseAmount+possible reward for correct bet
-        uint256 exp;//expiration
+        uint256 exp;//final round of option s
         bool dir;//direction (true for call)
         address pP;//price provider
         address aPA;//alt pool address 
@@ -617,6 +617,14 @@ contract BinaryOptions is ERC20, IBinaryOptions {
     event Exercise(uint256 indexed id);
     event Expire(uint256 indexed id);
 
+
+    /**
+     * @param name_ the name of the LP token
+     * @param symbol_ the symbol of the LP token
+     * @param biop_ address of the gov token
+     * @param uR_ address of utilization rewards contract
+     * @param app_ address of approved price providerss contract
+     */
       constructor(string memory name_, string memory symbol_, address biop_, address uR_, address app_) public ERC20(name_, symbol_){
         devFund = msg.sender;
         owner = msg.sender;
@@ -950,9 +958,10 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         external
     {
         Option memory option = options[oID];
-        require(block.timestamp <= option.exp, "expiration date margin has passed");
+
         AggregatorProxy priceProvider = AggregatorProxy(option.pP);
-        int256 lA = priceProvider.latestAnswer();
+        (uint80 lR, int256 lA, , , ) = priceProvider.latestRoundData();
+        require(lR <= option.exp, "expiration round margin has passed");
         if (option.dir) {
             //call option
             require(lA > option.sP, "price is to low");
@@ -995,7 +1004,10 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         external
     {
         Option memory option = options[oID];
-        require(block.timestamp > option.exp, "expiration date has not passed");
+
+        AggregatorProxy priceProvider = AggregatorProxy(option.pP);
+        (uint80 lR, , , , ) = priceProvider.latestRoundData();
+        require(lR > option.exp, "expiration round has not passed");
 
 
         

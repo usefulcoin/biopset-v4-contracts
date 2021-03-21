@@ -12,8 +12,13 @@ contract APP is IAPP {
     address public owner;
     mapping(address=>address) private approved;
 
-    constructor() public {
+     /**
+    * @param pp_ the price provider to add initially
+    * @param rc_ the ratecalc to add initially
+    */
+    constructor(address pp_, address rc_) public {
         owner = msg.sender;
+        approved[pp_] = rc_;
     }
 
      /**

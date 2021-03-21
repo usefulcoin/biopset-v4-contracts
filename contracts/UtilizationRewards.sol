@@ -22,23 +22,30 @@ contract UtilizationRewards is IUtilizationRewards{
                                       
 
     /** 
-     * @dev init the contract
-     * @param bo_ the the binary options contract address
-     * @param token_ the BIOP token address
-     * @param total the BIOP tokens to transfer into this contract from multisig
+     * @dev init the contract (dont forget to also configure setupBinaryOptions afterwards, and deposit tokens)
+     * @param token_ the BIOP token addressss
      * @param maxEpoch_ total number of reward epochs
      * @param launchTime the length of the launch bonus multiplier (in seconds)
      */
-    constructor(address bo_, address token_, uint256 total, uint256 maxEpoch_, uint256 launchTime) public {
+    constructor(address token_, uint256 maxEpoch_, uint256 launchTime) public {
       dao = msg.sender;
       lEnd = block.timestamp + launchTime;
       eS = block.timestamp + 30 days;
       tTE = 92857142857142850000000000000;
       maxEpoch = maxEpoch_;//7 was old default
-      perE = total.div(maxEpoch_); //amount per epoch
-      tTE = total.div(maxEpoch_); 
-
       token = ERC20(token_);
+    }
+
+     /** 
+     * @dev deposit tokens into the utilization rewards
+    
+     * @param total the BIOP tokens to transfer into this contract from multisig
+     */
+    function deposit(uint256 total) public onlyDAO {
+
+      perE = total.div(maxEpoch); //amount per epoch
+      tTE = total.div(maxEpoch); 
+
       token.transferFrom(msg.sender, address(this), total);
     }
 
