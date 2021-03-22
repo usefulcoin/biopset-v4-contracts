@@ -552,7 +552,7 @@ contract AggregatorProxy is AggregatorV2V3Interface, Owned {
 
 
 contract BinaryOptions is ERC20, IBinaryOptions {
-    using SafeMath for uint256;
+    using SafeMath for uint56;
     address payable public devFund;
     address payable public owner;
     address public uR; //utilization rewards
@@ -599,7 +599,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         uint80 pR;//purchase round
         uint256 pV;//purchase value
         uint256 lV;// purchaseAmount+possible reward for correct bet
-        uint256 exp;//final round of option s
+        uint80 exp;//final round of option s
         bool dir;//direction (true for call)
         address pP;//price provider
         address aPA;//alt pool address 
@@ -611,7 +611,9 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         address payable account,
         int256 sP,//strike
         uint256 lV,//locked value
-        bool dir
+        bool dir,
+        uint80 pR,//purchase round
+        uint80 exp//expiration round
     );
     event Payout(uint256 poolLost, address winner);
     event Exercise(uint256 indexed id);
@@ -893,7 +895,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
     @param pp_ the address of the price provider to use (must be in the list of aprvd from IAPP)
     @param t_ the rounds until your options expiration (must be minT < t_ > maxT)
     */
-    function bet(bool k_, address pp_, uint256 t_) external payable {
+    function bet(bool k_, address pp_, uint80 t_) external payable {
         require(
             t_ >= minT && t_ <= maxT,
             "Invalid time"
@@ -941,7 +943,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
         } else {
             oP = oP+1;
         }
-        emit Create(oID, msg.sender, lA, lV, k_);
+        emit Create(oID, msg.sender, lA, lV, k_, lR, t_);
     }
 
   
@@ -961,7 +963,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
 
         AggregatorProxy priceProvider = AggregatorProxy(option.pP);
         (uint80 lR, int256 lA, , , ) = priceProvider.latestRoundData();
-        require(lR <= option.exp, "expiration round margin has passed");
+        require(lR <= option.pR+option.exp, "expiration round margin has passed");
         if (option.dir) {
             //call option
             require(lA > option.sP, "price is to low");
@@ -1007,7 +1009,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
 
         AggregatorProxy priceProvider = AggregatorProxy(option.pP);
         (uint80 lR, , , , ) = priceProvider.latestRoundData();
-        require(lR > option.exp, "expiration round has not passed");
+        require(lR > option.pR+option.exp, "expiration round has not passed");
 
 
         
