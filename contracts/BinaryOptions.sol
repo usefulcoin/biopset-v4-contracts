@@ -846,7 +846,7 @@ contract BinaryOptions is ERC20, IBinaryOptions {
        require (balanceOf(msg.sender) >= amount, "Insufficent Share Balance");
         lW[msg.sender] = block.timestamp;
         //value to receive
-        uint256 vTR = amount.mul(address(this).balance).div(totalSupply());
+        uint256 vTR = amount.mul(address(this).balance).div(totalSupply().sub(lockedAmount));
         _burn(msg.sender, amount);
         if (block.timestamp <= nW[msg.sender]) {
             //early withdraw fee

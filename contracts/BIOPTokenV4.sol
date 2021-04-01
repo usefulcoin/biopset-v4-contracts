@@ -22,6 +22,7 @@ contract BIOPTokenV4 is ERC20 {
       */
       whitelistEnabled = true;
       whitelist[msg.sender] = true;
+      owner = msg.sender;
     }
 
      /**

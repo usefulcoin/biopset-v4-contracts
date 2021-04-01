@@ -37,13 +37,20 @@ contract FakePriceProvider is AggregatorV3Interface {
     uint8 public override decimals = 8;
     string public override description = "Test implementatiln";
     uint256 public override version = 0;
+    uint80 public round;
 
     constructor(uint256 _price) public {
         price = _price;
+        round = uint80(5);
     }
 
     function setPrice(uint256 _price) external {
         price = _price;
+    }
+
+    function updateRound(uint256 _price, uint80 _round) external {
+        price = _price;
+        round = _round;
     }
 
     function getRoundData(uint80) external override view returns (uint80, int256, uint256, uint256, uint80) {
@@ -59,7 +66,7 @@ contract FakePriceProvider is AggregatorV3Interface {
         override
         view
         returns (
-            uint80 round,
+            uint80 roundId,
             int256 answer,
             uint256,
             uint256,
@@ -67,7 +74,7 @@ contract FakePriceProvider is AggregatorV3Interface {
         )
     {
         answer = int(price);
-        round = uint80(5);
+        roundId = round;
     }
 }
 

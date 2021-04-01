@@ -15,12 +15,19 @@ contract LateStageBondingCurve is BancorBondingCurve {
     uint256 public buyFee = 2;//in 10th of percent
     uint256 public sellFee = 0;//in 10th of percent
 
-    constructor(address token_,  uint32 _reserveRatio, uint256 total) public BancorBondingCurve(_reserveRatio) {
+    constructor(address token_,  uint32 _reserveRatio) public BancorBondingCurve(_reserveRatio) {
       dao = msg.sender;
       token = ERC20(token_);
+      soldAmount = 100000;//require a non zero value to start
+    }
+
+    /**
+    * @dev run this function to make the deposit that starts the latestage bonding curve
+    * @param total the amount of erc20 tokens to transfer into this contract
+     */
+    function open(uint256 total) public onlyDAO {
       token.transferFrom(msg.sender, address(this), total);
       tbca = total;
-      soldAmount = 100000;//require a non zero value to start
     }
 
     function transferDAO(address payable newDAO_) public onlyDAO {

@@ -11,22 +11,24 @@ contract ITCO {
     uint256 totalDeps = 0;//total deposits
     uint256 public sta = 0;//start
     uint256 public end = 0;
+    uint256 public total;
 
+    
     //Tiers
-    uint256 t1 =   1000000000000000000;
-    uint256 t2 =  30000000000000000000;
-    uint256 t3 =  66600000000000000000;
-    uint256 t4 = 100000000000000000000;
-    uint256 t5 = 150000000000000000000;
-    uint256 t6 = 200000000000000000000;
+    uint256 t1 =  450000000000000000000000;
+    uint256 t2 =  550000000000000000000000;
+    uint256 t3 =  750000000000000000000000;
+    uint256 t4 = 1050000000000000000000000;
+    uint256 t5 = 1400000000000000000000000;
+    uint256 t6 = 1800000000000000000000000;
 
     //token price at each tier
-    uint256 p1 = 60320000000000;//~$0.10
-    uint256 p2 = 50320000000000;//~$0.08
-    uint256 p3 = 35000000000000;//~$0.06
-    uint256 p4 = 25000000000000;//~$0.04
-    uint256 p5 = 20000000000000;//~$0.03
-    uint256 p6 = 10000000000000;//~$0.02
+    uint256 p1 =  80000000000000;//~$0.12
+    uint256 p2 =  90000000000000;//~$0.14
+    uint256 p3 = 100000000000000;//~$0.16
+    uint256 p4 = 110000000000000;//~$0.17
+    uint256 p5 = 120000000000000;//~$0.19
+    uint256 p6 = 130000000000000;//~$0.20
 
 
     /**
@@ -54,7 +56,37 @@ contract ITCO {
         require(token.transferFrom(msg.sender, address(this), a), "transfer failed");
         sta = block.timestamp;
         end = block.timestamp + t;
+        total = a;
     }
+
+    /**
+    * @notice returns the current tier and current price
+     */
+    function currentTier() external view returns (uint256, uint256){
+        uint256 price;
+        uint256 t;
+        if (totalDeps >= t5) {
+            t = 6;
+            price = p6;
+        } else if (totalDeps >= t4) {
+            t = 5;
+            price = p5;
+        } else if (totalDeps >= t3) {
+            t = 4;
+            price = p4;
+        } else if (totalDeps >= t2) {
+            t = 3;
+            price = p3;
+        } else if (totalDeps >= t1) {
+            t = 2;
+            price = p2;
+        } else {
+            t = 1;
+            price = p1;
+        }
+        return (t, price);
+    }
+
 
     /**
     * @notice withdraw the ETH emassed in the ibco
