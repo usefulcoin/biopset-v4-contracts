@@ -12,6 +12,7 @@ contract ITCO {
     uint256 public sta = 0;//start
     uint256 public end = 0;
     uint256 public total;
+    uint256 public base = 1000000000000000000;//1 token with 18 decimals
 
     
     //Tiers
@@ -126,6 +127,7 @@ contract ITCO {
 
     //tokens to send
         uint256 tTS = (msg.value.div(price));//x18
+        tTS = tTS.mul(base);
         
         ERC20 token = ERC20(tk);
         uint256 balance = token.balanceOf(address(this));
