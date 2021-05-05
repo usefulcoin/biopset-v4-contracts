@@ -32,7 +32,11 @@ npm install
 ganache-cli
 ```
 
-6. Run Truffle Test
+6. Make sure to set to "**true**" for local testing.
+
+https://github.com/BIOPset/v4-contracts/blob/master/migrations/1_erc_token_and_pool_and_options.js#L55
+
+7. Run Truffle Test
 
 ```bash
 truffle test
