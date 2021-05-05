@@ -18,7 +18,7 @@ sudo npm install -g truffle
 
 For example, change the variable value to your private key in the repository here:
 
-https://github.com/usefulcoin/biopset-v4-contracts/blob/main/truffle-config.js#L26
+https://github.com/usefulcoin/biopset-v4-contracts/blob/main/truffle-config.js#L24
 
 4. Confirm the hardcoded oracle address is for Rinkeby on line 32:
 
