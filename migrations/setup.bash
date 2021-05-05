@@ -19,8 +19,7 @@ sudo apt -y install vim > /dev/null 2>&1 && echo [$0] installed vim APT.
 nodeversion=$(nodejs --version) && echo [$0] verified the installation of nodejs version $nodeversion.
 npmversion=$(npm --version) && echo [$0] verified the installation of npm version $npmversion.
 
-# step 3: clone repository.
-git clone https://github.com/usefulcoin/biopset-v4-contracts.git && echo [$0] cloned repository.
+# step 3: prepare repository.
 cd biopset-v4-contracts && echo [$0] repository is now the working directory.
 git checkout -b master && echo [$0] checked out the master branch.
 
