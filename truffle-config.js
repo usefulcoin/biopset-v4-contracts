@@ -21,6 +21,7 @@ const HDWalletProvider = require('truffle-hdwallet-provider-privkey');
 const KovanPrivateKey = "e4f3dcc2feaf05c8332d3416851f2e934ba2463409450116fce916b6aa166048";
 const endpointUrl = "https://kovan.infura.io/v3/ec1bd267c03c4b3e824ab2f2ad57f9c0";
 
+const RinkebyPrivateKey = "fake";
 const RinkebyEndpointUrl = "https://rinkeby.infura.io/v3/ec1bd267c03c4b3e824ab2f2ad57f9c0";
 
 const MainNetPrivateKey = "fake";
@@ -57,7 +58,7 @@ module.exports = {
       gas: 5000000,
       gasPrice: 25000000000,
       network_id: 42
-    },   
+    },
     mainnet: {
       provider: function() {
         return new HDWalletProvider(
@@ -70,12 +71,12 @@ module.exports = {
       gas: 12457254,
       gasPrice: 12457254,
       network_id: 1
-    }, 
+    },
     rinkeby: {
       provider: function() {
         return new HDWalletProvider(
           //private keys array
-          [KovanPrivateKey],
+          [RinkebyPrivateKey],
           //url to ethereum node
           RinkebyEndpointUrl
         )
@@ -89,17 +90,17 @@ module.exports = {
     // You should run a client (like ganache-cli, geth or parity) in a separate terminal
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
-    
+
      development: {
       host: "127.0.0.1",     // Localhost (default: none)
       port: 8545,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
-    }, 
+    },
     tenderly: {
       host: "127.0.0.1",     // Localhost (default: none)
       port: 9545,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
-    }, 
+    },
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port
