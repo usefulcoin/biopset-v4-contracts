@@ -46,3 +46,16 @@ truffle migrate --network rinkeby
  ```bash
  truffle deploy --network rinkeby --reset
  ```
+### Note:
+
+If you get the following error:
+
+```bash
+Error: Cannot find module 'truffle-hdwallet-provider-privkey'
+```
+
+Then run:
+
+```bash
+npm install -s truffle-hdwallet-provider-privkey
+```
