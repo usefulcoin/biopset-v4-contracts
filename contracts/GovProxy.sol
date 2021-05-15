@@ -1,6 +1,7 @@
 pragma solidity ^0.6.6;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @title Binary Options Gov Proxy
@@ -42,25 +43,28 @@ contract GovProxy {
         treasury = new_;
     }
 
-
+    /**
+    * @dev transfer ETH or ERC20 tokens to the treasury or to the DGov directly for stakers to claim
+    */
     function transferToGov() external onlyDGov returns(uint256){
-        require(address(this).balance > 0, "Nothing to transfer");
-        uint256 fee = address(this).balance.div(tFee);
-        uint256 tT;
-        if (treasuryFee != 0) {
-            //if treasury fee is not zero then calculate it
-            tT = (address(this).balance.sub(fee)).div(treasuryFee);
-            treasury.send(tT);
-        }
-        uint256 fG = 0;//amount for gov direct is zero by default
-        if (treasuryFee > 1) {
-            //if treasury fee is not 100% send some direct to gov
-            uint256 tG = address(this).balance.sub(fee);
-            dgov.send(tG);
-            fG = tG;
-        }
-        tx.origin.send(fee);
-        return fG;
+            require(address(this).balance > 0, "Nothing to transfer");
+            uint256 fee = address(this).balance.div(tFee);
+            uint256 tT;
+            if (treasuryFee != 0) {
+                //if treasury fee is not zero then calculate it
+                tT = (address(this).balance.sub(fee)).div(treasuryFee);
+                treasury.send(tT);
+            }
+            uint256 fG = 0;//amount for gov direct is zero by default
+            if (treasuryFee > 1) {
+                //if treasury fee is not 100% send some direct to gov
+                uint256 tG = address(this).balance.sub(fee);
+                dgov.send(tG);
+                fG = tG;
+            }
+            tx.origin.send(fee);
+            return fG;
+       
     }
 
     fallback () external payable {}

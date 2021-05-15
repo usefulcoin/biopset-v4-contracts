@@ -3,14 +3,12 @@ pragma solidity ^0.6.6;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-//import "./BIOPTokenV4.sol";
-
-import "./interfaces/IBinaryOptions.sol";
+import "./interfaces/INativeAssetDenominatedBinaryOptions.sol";
 import "./APP.sol";
 import "./GovProxy.sol";
 import "./Treasury.sol";
-import "./EBOP20/EBOP20.sol";
-import "./EBOP20/EBOP20Factory.sol";
+import "./interfaces/ITokenDenominatedBinaryOptions.sol";
+import "./TokenDenominatedBinaryOptions/TokenDenominatedBinaryOptionsFactory.sol";
 interface AccessTiers {
     /**
      * @notice Returns the rate to pay out for a given amount
@@ -97,7 +95,7 @@ contract DelegatedGov {
     address public appA;//approved price providers address
     address public tA;//token address
     address public aTA;//access tiers address
-    address public fcry;//ebop20 factory address
+    address public fcry;//TokenDenominatedBinaryOptions factory address
     address payable public pX;//proxy
     address payable public trsy;//treasury
     
@@ -106,12 +104,13 @@ contract DelegatedGov {
     mapping(address=>uint256) public staked;//amount of BIOP they have staked
     uint256 dBIOP = 0;//the total amount of staked BIOP which has been delegated for governance
 
-    //rewards for stakers
+    //ETH rewards for stakers
     uint256 public trg = 0;//total rewards generated
     mapping(address=>uint256) public lrc;//last rewards claimed at trg point for this address 
     
+    
 
-     constructor(address bo_, address v3_, address accessTiers_, address payable proxy_, address app_, address factory_) public {
+    constructor(address bo_, address v3_, address accessTiers_, address payable proxy_, address app_, address factory_) public {
       pA = bo_;
       tA = v3_;
       aTA = accessTiers_;
@@ -139,11 +138,14 @@ contract DelegatedGov {
         require(token.balanceOf(msg.sender) >= amount, "insufficent biop balance");
         require(token.transferFrom(msg.sender, address(this), amount), "staking failed");
         if (staked[msg.sender] == 0) {
+            //only for ETH
             lrc[msg.sender] = trg;
         }
         staked[msg.sender] = staked[msg.sender].add(amount);
         emit Stake(amount, totalStaked());
     }
+
+ 
 
     /**
      * @notice withdraw your BIOP and stop earning rewards. You must undelegate before you can withdraw
@@ -187,7 +189,7 @@ contract DelegatedGov {
     }
 
     /** 
-    * @notice base rewards since last claim
+    * @notice base ETH rewards since last claim
     * @param acc the account to get the answer for
     */
     function bRSLC(address acc) public view returns (uint256) {
@@ -201,7 +203,7 @@ contract DelegatedGov {
 
 
     function claimETHRewards() public {
-        require(lrc[msg.sender] < trg, "no rewards available");
+        require(lrc[msg.sender] <= trg, "no rewards available");
         
         uint256 toSend = pendingETHRewards(msg.sender);
         lrc[msg.sender] = trg;
@@ -263,14 +265,14 @@ contract DelegatedGov {
     }
 
     /**
-     * @notice create a new EBOP20 pool
+     * @notice create a new TokenDenominatedBinaryOptions pool
      * @param token_ the erc20 address to underwrite the new pool
      */
-    function createEBOP20(address token_) public {
-        EBOP20Factory factory = EBOP20Factory(fcry);
-        address tAddress = factory.getEBOP20Address(token_);
+    function createTokenDenominatedBinaryOptions(address token_) public {
+        TokenDenominatedBinaryOptionsFactory factory = TokenDenominatedBinaryOptionsFactory(fcry);
+        address tAddress = factory.getTokenDenominatedBinaryOptionsAddress(token_);
         require(tAddress == 0x0000000000000000000000000000000000000000, "pool for this token already exists, replace it instead");
-        factory.createEBOP20(token_, trsy, appA);
+        factory.createTokenDenominatedBinaryOptions(token_, trsy, appA);
     }
 
 
@@ -319,15 +321,15 @@ contract DelegatedGov {
     /**
      * @notice update the maximum time an option can be created for
      * @param nMT_ the time (in seconds) of maximum possible bet
-     * @param addy_ the address of the pool to update or the token used for the EBOP20 pool (pass pA to use the default ETH pool)
+     * @param addy_ the address of the pool to update or the token used for the TokenDenominatedBinaryOptions pool (pass pA to use the default ETH pool)
      */
     function uMXOT(uint256 nMT_, address addy_) external tierOneDelegation {
         if (addy_ == pA) {
-            IBinaryOptions pr = IBinaryOptions(pA);
+            INativeAssetDenominatedBinaryOptions pr = INativeAssetDenominatedBinaryOptions(pA);
             pr.setMaxT(nMT_);
         } else {
-            EBOP20Factory factory = EBOP20Factory(fcry);
-            EBOP20 pr = EBOP20(factory.getEBOP20Address(addy_));
+            TokenDenominatedBinaryOptionsFactory factory = TokenDenominatedBinaryOptionsFactory(fcry);
+            TokenDenominatedBinaryOptions pr = TokenDenominatedBinaryOptions(factory.getTokenDenominatedBinaryOptionsAddress(addy_));
             pr.updateMaxT(nMT_);
         }
     }
@@ -335,15 +337,15 @@ contract DelegatedGov {
     /**
      * @notice update the maximum time an option can be created for
      * @param nMT_ the time (in seconds) of maximum possible bet
-     * @param addy_ the address of the pool to update or the token used for the EBOP20 pool (pass pA to use the default ETH pool)
+     * @param addy_ the address of the pool to update or the token used for the TokenDenominatedBinaryOptions pool (pass pA to use the default ETH pool)
      */
     function uMNOT(uint256 nMT_, address addy_) external tierOneDelegation {
         if (addy_ == pA) {
-            IBinaryOptions pr = IBinaryOptions(pA);
+            INativeAssetDenominatedBinaryOptions pr = INativeAssetDenominatedBinaryOptions(pA);
             pr.setMinT(nMT_);
         } else {
-            EBOP20Factory factory = EBOP20Factory(fcry);
-            EBOP20 pr = EBOP20(factory.getEBOP20Address(addy_));
+            TokenDenominatedBinaryOptionsFactory factory = TokenDenominatedBinaryOptionsFactory(fcry);
+            TokenDenominatedBinaryOptions pr = TokenDenominatedBinaryOptions(factory.getTokenDenominatedBinaryOptionsAddress(addy_));
             pr.updateMinT(nMT_);
         }
     }
@@ -393,15 +395,15 @@ contract DelegatedGov {
     /**
      * @notice update fee paid to exercisers
      * @param newFee_ the new fee
-     * @param addy_ the address of the pool to update or the token used for the EBOP20 pool (pass pA to use the default ETH pool)
+     * @param addy_ the address of the pool to update or the token used for the TokenDenominatedBinaryOptions pool (pass pA to use the default ETH pool)
      */
     function updateExerciserFee(uint256 newFee_, address addy_) external tierTwoDelegation {
         if (addy_ == pA) {
-            IBinaryOptions pr = IBinaryOptions(pA);
+            INativeAssetDenominatedBinaryOptions pr = INativeAssetDenominatedBinaryOptions(pA);
             pr.updateExerciserFee(newFee_);
         } else {
-            EBOP20Factory factory = EBOP20Factory(fcry);
-            EBOP20 pr = EBOP20(factory.getEBOP20Address(addy_));
+            TokenDenominatedBinaryOptionsFactory factory = TokenDenominatedBinaryOptionsFactory(fcry);
+            TokenDenominatedBinaryOptions pr = TokenDenominatedBinaryOptions(factory.getTokenDenominatedBinaryOptionsAddress(addy_));
             pr.updateExerciserFee(newFee_);
         }
     }
@@ -409,15 +411,15 @@ contract DelegatedGov {
     /**
      * @notice update fee paid to expirers
      * @param newFee_ the new fee
-     * @param addy_ the address of the pool to update or the token used for the EBOP20 pool (pass pA to use the default ETH pool)
+     * @param addy_ the address of the pool to update or the token used for the TokenDenominatedBinaryOptions pool (pass pA to use the default ETH pool)
      */
     function updateExpirerFee(uint256 newFee_, address addy_) external tierTwoDelegation {
         if (addy_ == pA) {
-            IBinaryOptions pr = IBinaryOptions(pA);
+            INativeAssetDenominatedBinaryOptions pr = INativeAssetDenominatedBinaryOptions(pA);
             pr.updateExpirerFee(newFee_);
         } else {
-            EBOP20Factory factory = EBOP20Factory(fcry);
-            EBOP20 pr = EBOP20(factory.getEBOP20Address(addy_));
+            TokenDenominatedBinaryOptionsFactory factory = TokenDenominatedBinaryOptionsFactory(fcry);
+            TokenDenominatedBinaryOptions pr = TokenDenominatedBinaryOptions(factory.getTokenDenominatedBinaryOptionsAddress(addy_));
             pr.updateExpirerFee(newFee_);
         }
     }
@@ -448,7 +450,7 @@ contract DelegatedGov {
      * @param nx_ the new boolean value of rewardsEnabled
      */
     function enableRewards(bool nx_) external tierTwoDelegation {
-        IBinaryOptions pr = IBinaryOptions(pA);
+        INativeAssetDenominatedBinaryOptions pr = INativeAssetDenominatedBinaryOptions(pA);
         pr.enableRewards(nx_);
     }
 
@@ -462,12 +464,24 @@ contract DelegatedGov {
     }
 
       /**
-     * @notice distribute treasury funds to some destination
+     * @notice distribute treasury ETH funds to some destination
      * @param amount the new amount to send from the treasury, in wei
+     * @param destination where the ETH should be sent
      */
     function sendTreasuryFunds(uint256 amount, address payable destination) external tierTwoDelegation {
         Treasury ty = Treasury(trsy);
         ty.sendFunds(amount, destination);
+    }
+
+      /**
+     * @notice distribute treasury ERC20 funds to some destination
+     * @param token the ERC20 address to transfer tokens of
+     * @param amount the new amount to send from the treasury, in wei equivalent
+     * @param destination where the tokens should be sent
+     */
+    function sendTreasuryERC20Funds(address token, uint256 amount, address payable destination) external tierTwoDelegation {
+        Treasury ty = Treasury(trsy);
+        ty.sendERC20Funds(token, amount, destination);
     }
 
     /* 
@@ -518,15 +532,15 @@ contract DelegatedGov {
     /**
      * @notice update soft lock time for the main pool. 
      * @param newLockSeconds_ the time (in seconds) of the soft pool lock
-     * @param addy_ the address of the pool to update or the token used for the EBOP20 pool (pass pA to use the default ETH pool)
+     * @param addy_ the address of the pool to update or the token used for the TokenDenominatedBinaryOptions pool (pass pA to use the default ETH pool)
      */
     function updatePoolLockTime(uint256 newLockSeconds_, address addy_) external tierThreeDelegation {
         if (addy_ == pA) {
-            IBinaryOptions pr = IBinaryOptions(pA);
+            INativeAssetDenominatedBinaryOptions pr = INativeAssetDenominatedBinaryOptions(pA);
             pr.updatePoolLockSeconds(newLockSeconds_);
         } else {
-            EBOP20Factory factory = EBOP20Factory(fcry);
-            EBOP20 pr = EBOP20(factory.getEBOP20Address(addy_));
+            TokenDenominatedBinaryOptionsFactory factory = TokenDenominatedBinaryOptionsFactory(fcry);
+            TokenDenominatedBinaryOptions pr = TokenDenominatedBinaryOptions(factory.getTokenDenominatedBinaryOptionsAddress(addy_));
             pr.updatePoolLockSeconds(newLockSeconds_);
         }
     }
@@ -534,15 +548,15 @@ contract DelegatedGov {
     /**
      * @notice update the fee paid by betters when they make a bet
      * @param newBetFee_ the time (in seconds) of the soft pool lock
-     * @param addy_ the address of the pool to update or the token used for the EBOP20 pool (pass pA to use the default ETH pool)
+     * @param addy_ the address of the pool to update or the token used for the TokenDenominatedBinaryOptions pool (pass pA to use the default ETH pool)
      */
     function updateBetFee(uint256 newBetFee_, address addy_) external tierThreeDelegation {
         if (addy_ == pA) {
-            IBinaryOptions pr = IBinaryOptions(pA);
+            INativeAssetDenominatedBinaryOptions pr = INativeAssetDenominatedBinaryOptions(pA);
             pr.updateDevFundBetFee(newBetFee_);
         } else {
-            EBOP20Factory factory = EBOP20Factory(fcry);
-            EBOP20 pr = EBOP20(factory.getEBOP20Address(addy_));
+            TokenDenominatedBinaryOptionsFactory factory = TokenDenominatedBinaryOptionsFactory(fcry);
+            TokenDenominatedBinaryOptions pr = TokenDenominatedBinaryOptions(factory.getTokenDenominatedBinaryOptionsAddress(addy_));
             pr.updateDAOBetFee(newBetFee_);
         }
     }
@@ -550,16 +564,16 @@ contract DelegatedGov {
    /**
      * @dev update APP
      * @param newAPP_ the new approved price provider (and ratecalc contract to use). Must be a IAPP
-     * @param addy_ the address of the pool to update or the token used for the EBOP20 pool (pass pA to use the default ETH pool)
+     * @param addy_ the address of the pool to update or the token used for the TokenDenominatedBinaryOptions pool (pass pA to use the default ETH pool)
      */
     function updateAPP(address newAPP_, address addy_) external tierThreeDelegation {
         
         if (addy_ == pA) {
-            IBinaryOptions pr = IBinaryOptions(pA);
+            INativeAssetDenominatedBinaryOptions pr = INativeAssetDenominatedBinaryOptions(pA);
             pr.updateAPP(newAPP_);
         } else {
-            EBOP20Factory factory = EBOP20Factory(fcry);
-            EBOP20 pr = EBOP20(factory.getEBOP20Address(addy_));
+            TokenDenominatedBinaryOptionsFactory factory = TokenDenominatedBinaryOptionsFactory(fcry);
+            TokenDenominatedBinaryOptions pr = TokenDenominatedBinaryOptions(factory.getTokenDenominatedBinaryOptionsAddress(addy_));
             pr.updateAPP(newAPP_);
         }
     }
@@ -574,11 +588,11 @@ contract DelegatedGov {
     }
 
     /**
-     * @notice deactivate a EBOP20 pool
+     * @notice deactivate a TokenDenominatedBinaryOptions pool
      */
-    function deactivateEBOP20(address token_) public {
-        EBOP20Factory factory = EBOP20Factory(fcry);
-        require(factory.getEBOP20Address(token_) != 0x0000000000000000000000000000000000000000, "pool for this token already exists, replace it instead");
+    function deactivateTokenDenominatedBinaryOptions(address token_) public {
+        TokenDenominatedBinaryOptionsFactory factory =TokenDenominatedBinaryOptionsFactory(fcry);
+        require(factory.getTokenDenominatedBinaryOptionsAddress(token_) != 0x0000000000000000000000000000000000000000, "pool for this token already exists, replace it instead");
         factory.removePool(token_);
     }
 
@@ -639,15 +653,15 @@ contract DelegatedGov {
 
     /**
      * @notice prevent new deposits into the pool. Effectivly end that pool.
-     * @param addy_ the address of the pool to update or the token used for the EBOP20 pool (pass pA to use the default ETH pool)
+     * @param addy_ the address of the pool to update or the token used for the TokenDenominatedBinaryOptions pool (pass pA to use the default ETH pool)
      */
     function closeStaking(address addy_) external tierFourDelegation {
          if (addy_ == pA) {
-            IBinaryOptions pr = IBinaryOptions(pA);
+            INativeAssetDenominatedBinaryOptions pr = INativeAssetDenominatedBinaryOptions(pA);
             pr.closeStaking();
         } else {
-            EBOP20Factory factory = EBOP20Factory(fcry);
-            EBOP20 pr = EBOP20(factory.getEBOP20Address(addy_));
+            TokenDenominatedBinaryOptionsFactory factory = TokenDenominatedBinaryOptionsFactory(fcry);
+            TokenDenominatedBinaryOptions pr = TokenDenominatedBinaryOptions(factory.getTokenDenominatedBinaryOptionsAddress(addy_));
             pr.closeStaking();
         }
     }
@@ -657,7 +671,7 @@ contract DelegatedGov {
      * @param newUR the new UtilizationRewards contract to use
      */
     function updateUtilizationRewards(address newUR) external tierFourDelegation {
-        IBinaryOptions pr = IBinaryOptions(pA);
+        INativeAssetDenominatedBinaryOptions pr = INativeAssetDenominatedBinaryOptions(pA);
         pr.updateUtilizationRewards(newUR);
     }
 
@@ -675,10 +689,10 @@ contract DelegatedGov {
 
     /**
      * @notice update the main ETH pool
-     * @param a the address of the new BinaryOptions pool to use
+     * @param a the address of the new INativeAssetDenominatedBinaryOptions pool to use
      */
     function updateProtocol(address payable a) external  {
-        IBinaryOptions t = IBinaryOptions(a);
+        INativeAssetDenominatedBinaryOptions t = INativeAssetDenominatedBinaryOptions(a);
         tA = a;
     }
 
@@ -687,7 +701,7 @@ contract DelegatedGov {
      * @param a the address of the new DAO to control the factory
      */
     function updateFactoryOwner(address payable a) external  {
-        EBOP20Factory factory = EBOP20Factory(fcry);
+        TokenDenominatedBinaryOptionsFactory factory = TokenDenominatedBinaryOptionsFactory(fcry);
         factory.transferOwner(a);
     }
 
